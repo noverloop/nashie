@@ -3,7 +3,7 @@ require File.expand_path('../lib/nash/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["noverloop"]
-  gem.email         = ["nicolas@geckoboard.com"]
+  gem.email         = ["nicolas@noverloop.be"]
   gem.description   = %q{Nashie is an extension of Hashie and stands for Nested Hashie. Nashie allows you to create hashes that include other objects}
   gem.summary       = %q{Nashie allows you to create nested Hashie structures}
   gem.homepage      = ""

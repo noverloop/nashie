@@ -1,16 +1,16 @@
 require "nash/version"
-require 'hashie/dash'
+require 'hashie/trash'
 require 'set'
 
 module Hashie
   # A Nash is a Nested Defined Hash and is an extension of a Dash
-  # A Nash allows you to create complex assignments composing of 
+  # A Nash allows you to create complex assignments composing of
   # several nested Dashes
-  # 
   #
-  # Nashes are useful when you need to create a lightweigth nested 
+  #
+  # Nashes are useful when you need to create a lightweigth nested
   # data object, ideal for validating JSON
-  class Nash < Hashie::Dash
+  class Nash < Hashie::Trash
     include Hashie::PrettyInspect
     alias_method :to_s, :inspect
 
@@ -42,18 +42,45 @@ module Hashie
           if options.has_key?(:class)
             class_name = options[:class].to_s
             class_properties[property_name] = class_name if options.delete(:class)
-            class_eval <<-ACCESSORS
-              def #{property_name}(&block)
-                self.[](#{property_name.to_s.inspect}, &block)
-              end
+            if not options[:collection]
+              class_eval <<-ACCESSORS
+                def #{property_name}(&block)
+                  self.[](#{property_name.to_s.inspect}, &block)
+                end
 
-              def #{property_name}=(value)
-                self.[]=(#{property_name.to_s.inspect}, #{class_properties[property_name]}.new(value))
-              end
-              
-            ACCESSORS
-            
-            
+                def #{property_name}=(value)
+                  self.[]=(#{property_name.to_s.inspect}, #{class_properties[property_name]}.new(value))
+                end
+
+              ACCESSORS
+            else
+              # expect arrays and convert single items into arrays
+              class_eval <<-ACCESSORS
+                def #{property_name}(&block)
+                  self.[](#{property_name.to_s.inspect}, &block)
+                end
+
+                def #{property_name}=(value)
+                  if not value.is_a? Array
+                    if #{options[:permissive]}
+                      value = [value]
+                    else
+                      raise "#{property_name} requires an array, use :permissive => true to automatically convert to array"
+                    end
+                  end
+                  values = []
+                  value.each do |item|
+                    values << #{class_properties[property_name]}.new(item)
+                  end
+                  values =
+                  self.[]=(#{property_name.to_s.inspect}, values)
+                end
+
+              ACCESSORS
+
+            end
+
+
           elsif
             class_properties[property_name] = nil
           end
@@ -97,11 +124,11 @@ module Hashie
     # You may initialize a Dash with an attributes hash
     # just like you would many other kinds of data objects.
     def initialize(attributes = {}, &block)
-      super(attributes, &block) 
-      
+      super(attributes, &block)
+
       # override whatever Dash has set
       attributes.each_pair do |att, value|
-        self.send((att.to_s + '=').to_sym,value) 
+        self.send((att.to_s + '=').to_sym,value)
       end if attributes
       assert_required_properties_set!
     end
