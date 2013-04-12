@@ -37,11 +37,10 @@ Or install it yourself as:
     car = Car.new "engine" => {"build_year" => 2010, "nitro" => false, :parts => [{"name" => "crankshaft"}, {"name" => "flywheel"}]}
 ## Overrides
 
-It's possible that you have custom validation logic that is not covered by nashies.
-Internally nashies use the "new" class method which can be overridden if needed.
+Overriding the initialization method allows you to inject some custom logic if needed.
 
     class Motorcycle
-      def self.new hash
+      def initialize hash
         raise "Euhm, a motorcycle has 2 wheels you know..." if not hash[:wheels].eql? 2
         super hash
       end
@@ -49,9 +48,7 @@ Internally nashies use the "new" class method which can be overridden if needed.
 
 ## DSL
 
-A DSL is created that acts similar, it works by autocreating the classes as illustrated above (namespaced to the parent class).
-The example below for example will convert the block to a Presentation::Users class with similar properties.
-The block body passed to the property is executed on the class-level so you can define methods and override methods if needed.
+A DSL is provided for inline declaration.
 
     class Presentation < Hashie::Nash
       property :users, :collection => true, :required => true do
