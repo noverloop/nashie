@@ -34,7 +34,14 @@ module Hashie
     #   should be instantiated when an assignment is made to this
     #   property.
     #
-    def self.property(property_name, options = {})
+    def self.property(property_name, options = {}, &block)
+          if block_given?
+            # if my college professor sees this he will personally come and beat the shit out of me :(
+            class_name = property_name.to_s.capitalize
+            class_ref = const_set(class_name, Class.new(Hashie::Nash))
+            class_ref.class_eval &block
+            options[:class] = class_name
+          end
           property_name = property_name.to_sym
 
           self.properties << property_name
