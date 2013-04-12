@@ -40,12 +40,12 @@ Or install it yourself as:
 It's possible that you have custom validation logic that is not covered by nashies.
 Internally nashies use the "new" class method which can be overridden if needed.
 
-   class Motorcycle
+    class Motorcycle
       def self.new hash
         raise "Euhm, a motorcycle has 2 wheels you know..." if not hash[:wheels].eql? 2
         super hash
       end
-   end
+    end
 
 ## DSL
 
